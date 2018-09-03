@@ -1,0 +1,113 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: wordpress
+      role: frontend
+    name: wordpress
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations:
+        openshift.io/imported-from: wordpress
+      from:
+        kind: DockerImage
+        name: wordpress
+      generation: null
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: ""
+  status:
+    dockerImageRepository: ""
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: wordpress
+      role: frontend
+    name: wordpress
+  spec:
+    replicas: 1
+    selector:
+      app: wordpress
+      deploymentconfig: wordpress
+      role: frontend
+    strategy:
+      resources: {}
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: wordpress
+          deploymentconfig: wordpress
+          role: frontend
+      spec:
+        containers:
+        - image: wordpress
+          name: wordpress
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          resources: {}
+          volumeMounts:
+          - mountPath: /var/www/html
+            name: wordpress-volume-1
+        volumes:
+        - emptyDir: {}
+          name: wordpress-volume-1
+        nodeSelector:
+          type: "vm"
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - wordpress
+        from:
+          kind: ImageStreamTag
+          name: wordpress:latest
+      type: ImageChange
+  status:
+    availableReplicas: 0
+    latestVersion: 0
+    observedGeneration: 0
+    replicas: 0
+    unavailableReplicas: 0
+    updatedReplicas: 0
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: wordpress
+      role: frontend
+    name: wordpress
+  spec:
+    ports:
+    - name: 80-tcp
+      port: 80
+      protocol: TCP
+      targetPort: 80
+    selector:
+      app: wordpress
+      deploymentconfig: wordpress
+      role: frontend
+  status:
+    loadBalancer: {}
+kind: List
+metadata: {}

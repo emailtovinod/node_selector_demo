@@ -1,0 +1,120 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: db
+      role: db
+    name: db
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations:
+        openshift.io/imported-from: registry.access.redhat.com/openshift3/mysql-55-rhel7
+      from:
+        kind: DockerImage
+        name: registry.access.redhat.com/openshift3/mysql-55-rhel7
+      generation: null
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: ""
+  status:
+    dockerImageRepository: ""
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: db
+      role: db
+    name: db
+  spec:
+    replicas: 1
+    selector:
+      app: db
+      deploymentconfig: db
+      role: db
+    strategy:
+      resources: {}
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: db
+          deploymentconfig: db
+          role: db
+      spec:
+        containers:
+        - env:
+          - name: MYSQL_DATABASE
+            value: wordpress
+          - name: MYSQL_PASSWORD
+            value: r3dh4t1!
+          - name: MYSQL_USER
+            value: wordpress
+          image: registry.access.redhat.com/openshift3/mysql-55-rhel7
+          name: db
+          ports:
+          - containerPort: 3306
+            protocol: TCP
+          resources: {}
+          volumeMounts:
+          - mountPath: /var/lib/mysql/data
+            name: db-volume-1
+        volumes:
+        - emptyDir: {}
+          name: db-volume-1
+        nodeSelector:
+            type: "bm"
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - db
+        from:
+          kind: ImageStreamTag
+          name: db:latest
+      type: ImageChange
+  status:
+    availableReplicas: 0
+    latestVersion: 0
+    observedGeneration: 0
+    replicas: 0
+    unavailableReplicas: 0
+    updatedReplicas: 0
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: db
+      role: db
+    name: db
+  spec:
+    ports:
+    - name: 3306-tcp
+      port: 3306
+      protocol: TCP
+      targetPort: 3306
+    selector:
+      app: db
+      deploymentconfig: db
+      role: db
+  status:
+    loadBalancer: {}
+kind: List
+metadata: {}
