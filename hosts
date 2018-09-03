@@ -1,0 +1,44 @@
+[masters]
+ocp-master01.openshift.example.com 
+[etcd]
+ocp-master01.openshift.example.com 
+[nodes]
+ocp-master01.openshift.example.com openshift_ip=192.0.3.16 ansible_host=192.0.3.16 openshift_node_group_name='node-config-master'
+ocp-infra01.openshift.example.com openshift_ip=192.0.3.22 ansible_host=192.0.3.22 openshift_node_group_name='node-config-infra' 
+ocp-node01.openshift.example.com openshift_ip=192.0.3.12 ansible_host=192.0.3.12 openshift_node_group_name='node-config-compute'
+[new_nodes]
+#ocp-node02.openshift.example.com  openshift_ip=192.0.3.23 ansible_host=192.0.3.23 openshift_node_group_name='node-config-bm-compute'
+ocp-node02.openshift.example.com  openshift_node_group_name='node-config-bm-compute'
+[OSEv3:children]
+masters
+nodes
+new_nodes
+[OSEv3:vars]
+ansible_user=cloud-user
+ansible_become=yes
+timeout=60
+openshift_deployment_type=openshift-enterprise
+openshift_release="3.10"
+openshift_master_default_subdomain=apps.openshift.example.com
+openshift_master_cluster_hostname=console.openshift.example.com
+debug_level=8
+openshift_disable_check=disk_availability,memory_availability,docker_storage,package_availability,package_version
+openshift_additional_repos=[{'id': 'ose-repo', 'name': 'rhel-7-server-ose-3.10-rpms', 'baseurl': 'http://192.0.2.253/repos/rhel-7-server-ose-3.10-rpms', 'enabled': 1, 'gpgcheck': 0},{'id': 'rhel-7-server-rpms-repo', 'name': 'rhel-7-server-rpms', 'baseurl': 'http://192.0.2.253/repos/rhel-7-server-rpms', 'enabled': 1, 'gpgcheck': 0},{'id': 'rhel-7-server-extras-rpms-repo', 'name': 'rhel-7-server-extras-rpms', 'baseurl': 'http://192.0.2.253/repos/rhel-7-server-extras-rpms', 'enabled': 1, 'gpgcheck': 0},{'id': 'rhel-7-fast-datapath-rpms', 'name': 'rhel-7-fast-datapath-rpms', 'baseurl': 'http://192.0.2.253/repos/rhel-7-fast-datapath-rpms', 'enabled': 1, 'gpgcheck': 0}]
+openshift_cloudprovider_kind=openstack
+openshift_cloudprovider_openstack_auth_url="http://10.0.0.26:5000//v3"
+openshift_cloudprovider_openstack_username="admin"
+openshift_cloudprovider_openstack_password="Eu3xKG6UKpKvZReEFc7FKqCn6"
+openshift_cloudprovider_openstack_tenant_name="admin"
+openshift_cloudprovider_openstack_region="regionOne"
+openshift_cloudprovider_openstack_domain_name="Default"
+openshift_cloudprovider_openstack_blockstorage_version=v2
+osm_default_node_selector='env=app'
+openshift_hosted_router_selector='node-role.kubernetes.io/infra=true'
+os_sdn_network_plugin_name='redhat/openshift-ovs-multitenant'
+openshift_enable_service_catalog=false
+template_service_broker_install=false
+openshift_ca_cert_expire_days=1825
+openshift_node_cert_expire_days=730
+openshift_master_cert_expire_days=730
+etcd_ca_default_days=1825
+openshift_node_groups=[{'name': 'node-config-master', 'labels': ['node-role.kubernetes.io/master=true']}, {'name': 'node-config-infra', 'labels': ['node-role.kubernetes.io/infra=true', 'env=infra']}, {'name': 'node-config-compute', 'labels': ['node-role.kubernetes.io/compute=true', 'type=vm',  'env=app'], 'edits': [{ 'key': 'kubeletArguments.pods-per-core','value': ['20']}]},{'name': 'node-config-bm-compute', 'labels': ['node-role.kubernetes.io/compute=true', 'type=bm', 'env=app'], 'edits': [{ 'key': 'kubeletArguments.pods-per-core','value': ['20']}]}]
